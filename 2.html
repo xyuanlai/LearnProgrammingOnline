@@ -1,0 +1,1449 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!--
+Design by TEMPLATED
+http://templated.co
+Released for free under the Creative Commons Attribution License
+
+Name       : LawnLike
+Description: A two-column, fixed-width design with dark color scheme.
+Version    : 1.0
+Released   : 20131202
+
+-->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title></title>
+<meta name="keywords" content="" />
+<meta name="description" content="" />
+<!-- level -->
+<script src="./blockly_compressed.js"></script>
+<script src="./blocks_compressed.js"></script>
+<script src="./javascript_compressed.js"></script>
+<script src="./msg/js/zh-hant.js"></script>
+<link rel="stylesheet" href="./css/level_view.css">
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+<script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+<script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<!-- level -->
+<link href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700,900" rel="stylesheet" />
+<link href="default.css" rel="stylesheet" type="text/css" media="all" />
+<link href="fonts.css" rel="stylesheet" type="text/css" media="all" />
+<script src="./promptdemo.js"></script>
+<!--[if IE 6]><link href="default_ie6.css" rel="stylesheet" type="text/css" /><![endif]-->
+
+</head>
+<body>
+<audio id="winAudio"><source src="./media/win.mp3" type="audio/mpeg"></audio>
+<audio id="failureAudio"><source src="./media/failure.mp3" type="audio/mpeg"></audio>
+<audio id="clickAudio"><source src="./media/click.mp3" type="audio/mpeg"></audio>
+<audio id="correctAudio"><source src="./media/correct.mp3" type="audio/mpeg"></audio>
+<audio id="level_2_1Audio"><source src="./media/level_2_1.mp3" type="audio/mpeg"></audio>
+<audio id="level_2_2Audio"><source src="./media/level_2_2.mp3" type="audio/mpeg"></audio>
+<audio id="level_2_3Audio"><source src="./media/level_2_3.mp3" type="audio/mpeg"></audio>
+<div id="header-wrapper">
+	<div id="header" class="container">
+		<div id="logo">
+			<h1><span class="fa fa-bolt"></span><a href="#">Level 2&nbsp;&nbsp;<span style='color:grey'>/13 基本運用</span></a></h1>
+		</div>
+	</div>
+</div>
+<div id="header-featured">
+	<div id="banner-wrapper">
+		<div id="banner" class="container">
+			<p>我們需要更多的木材，幫忙蒐集三個木材吧!</p>
+			<div style="float:right">
+				<table style="width:100%">
+					<tr>
+						<td>過關最多使用</td>
+						<td style="font-size:20px; font-weight:bold;">9</td>
+						<td>個積木，你已經使用 </td>
+						<td><span id="capacity" style="color:white; font-size:26px; font-weight:bold;"></span></td>
+						<td> 個積木</td>
+						<td><button onclick="runCode()" id="count" class="button">Run</button></td>
+					</tr>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="wrapper">
+	<div id="featured-wrapper">
+		<div id="featured" class="extra2 margin-btm container">
+		<table style="height: 100%; width: 100%;">
+			<tr>
+				<td style="padding-top: 7px; padding-left: 0px; padding-right: 50px">
+					<canvas id="canvas" width="400" height="400"></canvas>
+				</td>
+				<td style="padding-left: 50px; padding-right: 50px">
+					<div id="blocklyDiv"></div>
+				</td>
+			</tr>
+		</table>
+			<!-- <div class="ebox1">
+				<p><canvas id="canvas" width="400" height="400"></canvas></p>
+			</div>
+			<div class="ebox2">
+				<p><div id="blocklyDiv"></div></p>
+			</div> -->
+		</div>
+	</div>
+</div>
+</body>
+<xml id="toolbox" style="display: none">
+		<block type="move_forward"></block>
+		<block type="move_turnright"></block>
+		<block type="move_turnleft"></block>
+		<block type="action_destroy"></block>
+</xml>
+<script>
+		var canvas = document.getElementById('canvas');
+
+		// Game objects
+		var hero = {
+			speed: 20, // movement ms per pixels
+			handspeed: 50,
+			x: 150,
+			y: 250,
+			pre: [],
+			direction: "down"
+		};
+		var tree1 = {
+			x: 250,
+			y: 250,
+			show: true,
+			live: true
+		};
+		var tree2 = {
+			x: 200,
+			y: 150,
+			show: true,
+			live: true
+		};
+		var tree3 = {
+			x: 100,
+			y: 200,
+			show: true,
+			live: true
+		};
+		var wall = [
+		[0,-50],[50,-50],[100,-50],[150,-50],[200,-50],[250,-50],[300,-50],[350,-50],
+		[0,400],[50,400],[100,400],[150,400],[200,400],[250,400],[300,400],[350,400],
+		[400,0],[400,50],[400,100],[400,150],[400,200],[400,250],[400,300],[400,350],
+		[-50,0],[-50,50],[-50,100],[-50,150],[-50,200],[-50,250],[-50,300],[-50,350]
+		];
+		var winpoint = 0;
+		var treenum = 3;
+		var failcount = 0;
+
+		var images = {};
+		function loadImages(sources, callback) {
+			var loadedImages = 0;
+			var numImages = 0;
+			// get num of sources
+			for(var src in sources) {
+				numImages++;
+			}
+			for(var src in sources) {
+				images[src] = new Image();
+				images[src].onload = function() {
+					if(++loadedImages >= numImages) {
+						callback(images);
+					}
+				};
+				images[src].src = sources[src];
+			}
+		}
+
+		var sources = {
+			bgImage: './img/grass_line.png',
+			herorightImage: './img/YuanRight.png',
+			herorightImage1: './img/YuanRight_1.png',
+			herorightImage2: './img/YuanRight_2.png',
+			herorightImage3: './img/YuanRight_3.png',
+			heroleftImage: './img/YuanLeft.png',
+			heroleftImage1: './img/YuanLeft_1.png',
+			heroleftImage2: './img/YuanLeft_2.png',
+			heroleftImage3: './img/YuanLeft_3.png',
+			heroupImage: './img/YuanUp.png',
+			heroupImage1: './img/YuanUp_1.png',
+			heroupImage2: './img/YuanUp_2.png',
+			heroupImage3: './img/YuanUp_3.png',
+			herodownImage: './img/YuanDown.png',
+			herodownImage1: './img/YuanDown_1.png',
+			herodownImage2: './img/YuanDown_2.png',
+			herodownImage3: './img/YuanDown_3.png',
+			targetImage: './img/SanTree.png'
+		};
+
+		if (canvas && canvas.getContext) { // does the browser support 'canvas'?
+				var context = canvas.getContext("2d"); // get drawing context
+
+		} else {
+				alert('You need a browser which supports the HTML5 canvas!');
+		}
+
+		var heroImageNow;
+		loadImages(sources, function(images) {
+			drawNowBackgraound();
+			heroImageNow = eval('images.hero' + hero.direction + 'Image');
+			context.drawImage(heroImageNow, hero.x, hero.y);
+		});
+
+		function drawNowBackgraound(){
+			context.drawImage(images.bgImage, 0, 0, canvas.width, canvas.height);
+			for(var num = 1; num <= treenum; num++){
+				var treex = eval("tree" + num + ".x");
+				var treey = eval("tree" + num + ".y");
+				var treeshow = eval("tree" + num + ".show");
+				if(treeshow){
+					context.drawImage(images.targetImage, treex, treey, 50, 50);
+				}
+			}
+		}
+
+		// Reset the game
+		var reset = function () {
+			var logstring = Blocklylog[0].toString();
+			var commandindex = logstring.indexOf(",");
+			var checkcommand = logstring.substring(0,commandindex);
+			var heroprestring = hero.pre[0].toString();
+			var preindex1 = heroprestring.indexOf(",");
+			var heroprex = heroprestring.substring(0,preindex1);
+			var heroafterx = heroprestring.substring(preindex1 + 1);
+			var preindex2 = heroafterx.indexOf(",");
+			var heroprey = heroafterx.substring(0,preindex2);
+			var heropredir = heroafterx.substring(preindex2 + 1);
+			hero.x = heroprex;
+			hero.y = heroprey;
+			hero.pre = [];
+			hero.direction = heropredir;
+
+			for(var num = 1; num <= treenum; num++){
+				eval("tree" + num + ".show = true");
+				eval("tree" + num + ".live = true;");
+			}
+
+			drawNowBackgraound();
+			heroImageNow = eval('images.hero' + hero.direction + 'Image');
+			context.drawImage(heroImageNow, hero.x, hero.y);
+
+			Blockly.mainWorkspace.clear()
+		};
+
+		function moveForward(id) {
+			move(id);
+		}
+
+		function turnLeft(id){
+			turn(0, id);
+		}
+
+		function turnRight(id){
+			turn(1, id);
+		}
+
+		function move(id){
+			if (!isPath()) {
+				Blocklylog.push(['fail_forward', id]);
+				hero.pre.push([hero.x, hero.y, hero.direction]);
+				console.log("Blocklylog push = " + Blocklylog);
+				return;
+			}
+			var command;
+			switch (hero.direction) {
+				case "up":
+					hero.pre.push([hero.x, hero.y, hero.direction]);
+					hero.y = hero.y - 50;
+					command = 'moveup';
+					break;
+				case "right":
+					hero.pre.push([hero.x, hero.y, hero.direction]);
+					hero.x = hero.x + 50;
+					command = 'moveright';
+					break;
+				case "down":
+					hero.pre.push([hero.x, hero.y, hero.direction]);
+					hero.y = hero.y + 50;
+					command = 'movedown';
+					break;
+				case "left":
+					hero.pre.push([hero.x, hero.y, hero.direction]);
+					hero.x = hero.x - 50;
+					command = 'moveleft';
+					break;
+			}
+			Blocklylog.push([command, id]);
+			console.log("Blocklylog push = " + Blocklylog);//TEST
+		}
+
+		function turn(direction, id){
+			var turncommand;
+			if (direction) {
+				// Right turn (clockwise).
+				switch(hero.direction){
+					case "right":
+						hero.pre.push([hero.x, hero.y, hero.direction]);
+						hero.direction = "down";
+						turncommand = "facedown";
+						break;
+					case "left":
+						hero.pre.push([hero.x, hero.y, hero.direction]);
+						hero.direction = "up";
+						turncommand = "faceup";
+						break;
+					case "up":
+						hero.pre.push([hero.x, hero.y, hero.direction]);
+						hero.direction = "right";
+						turncommand = "faceright";
+						break;
+					case "down":
+						hero.pre.push([hero.x, hero.y, hero.direction]);
+						hero.direction = "left";
+						turncommand = "faceleft";
+						break;
+				}
+				Blocklylog.push([turncommand, id]);
+			} else {
+				// Left turn (counterclockwise).
+				switch(hero.direction){
+					case "right":
+						hero.pre.push([hero.x, hero.y, hero.direction]);
+						hero.direction = "up";
+						turncommand = "faceup";
+						break;
+					case "left":
+						hero.pre.push([hero.x, hero.y, hero.direction]);
+						hero.direction = "down";
+						turncommand = "facedown";
+						break;
+					case "up":
+						hero.pre.push([hero.x, hero.y, hero.direction]);
+						hero.direction = "left";
+						turncommand = "faceleft";
+						break;
+					case "down":
+						hero.pre.push([hero.x, hero.y, hero.direction]);
+						hero.direction = "right";
+						turncommand = "faceright";
+						break;
+				}
+				Blocklylog.push([turncommand, id]);
+			}
+			console.log("Blocklylog push = " + Blocklylog);  //TEST
+		}
+
+		function destroy(id){
+			var destroystatus = "destroyfail";
+			var whichtree = 0;
+			for(var num = 1; num <= treenum; num++){
+				var treex = eval("tree" + num + ".x");
+				var treey = eval("tree" + num + ".y");
+				var treelive = eval("tree" + num + ".live");
+				switch (hero.direction) {
+					case "right":
+						if(hero.x + 50 == treex && hero.y == treey && treelive){
+							destroystatus = "destroysuccess";
+							eval("tree" + num + ".live = false");
+							whichtree = num;
+						}
+						break;
+					case "left":
+						if(hero.x - 50 == treex && hero.y == treey && treelive){
+							destroystatus = "destroysuccess";
+							eval("tree" + num + ".live = false");
+							whichtree = num;
+						}
+						break;
+					case "up":
+						if(hero.y - 50 == treey && hero.x == treex && treelive){
+							destroystatus = "destroysuccess";
+							eval("tree" + num + ".live = false");
+							whichtree = num;
+						}
+						break;
+					case "down":
+						if(hero.y + 50 == treey && hero.x == treex && treelive){
+							destroystatus = "destroysuccess";
+							eval("tree" + num + ".live = false");
+							whichtree = num;
+						}
+						break;
+				}
+			}
+			hero.pre.push([hero.x, hero.y, hero.direction]);
+			Blocklylog.push([destroystatus, id, whichtree]);
+			console.log("Blocklylog push = " + Blocklylog);  //TEST
+		}
+
+		function isPath(){
+			var square;
+			for(var num = 1; num <= treenum; num++){
+				var treex = eval("tree" + num + ".x");
+				var treey = eval("tree" + num + ".y");
+				var treelive = eval("tree" + num + ".live");
+				switch (hero.direction) {
+					case "right":
+						if(hero.x + 50 == treex && hero.y == treey && treelive)
+							square = true;
+						break;
+					case "left":
+						if(hero.x - 50 == treex && hero.y == treey && treelive)
+							square = true;
+						break;
+					case "up":
+						if(hero.y - 50 == treey && hero.x == treex && treelive)
+							square = true;
+						break;
+					case "down":
+						if(hero.y + 50 == treey && hero.x == treex && treelive)
+							square = true;
+						break;
+				}
+			}
+			for(var i = 0; i < wall.length; i++){
+				switch (hero.direction) {
+					case "right":
+						if(hero.x + 50 == wall[i][0] && hero.y == wall[i][1])
+							square = true;
+						break;
+					case "left":
+						if(hero.x - 50 == wall[i][0] && hero.y == wall[i][1])
+							square = true;
+						break;
+					case "up":
+						if(hero.y - 50 == wall[i][1] && hero.x == wall[i][0])
+							square = true;
+						break;
+					case "down":
+						if(hero.y + 50 == wall[i][1] && hero.x == wall[i][0])
+							square = true;
+						break;
+				}
+			}
+			return !square;
+		}
+
+		function animate(){
+			//var action = Blocklylog.shift();
+			//console.log("log: " + Blocklylog);
+			var loglength = Blocklylog.length;
+			var i = 0;
+			function animateLoop(){
+				setTimeout(function (){
+					var logstring = Blocklylog[i].toString();
+					var commandindex = logstring.indexOf(",");
+					var checkcommand = logstring.substring(0,commandindex);
+
+					var heroprestring = hero.pre[i].toString();
+					var preindex1 = heroprestring.indexOf(",");
+					var heroprex = heroprestring.substring(0,preindex1);
+					var heroafterx = heroprestring.substring(preindex1 + 1);
+					var preindex2 = heroafterx.indexOf(",");
+					var heroprey = heroafterx.substring(0,preindex2);
+					var heropredir = heroafterx.substring(preindex2 + 1);
+					var heroprex50 = parseInt(heroprex);
+					var heroprey50 = parseInt(heroprey);
+					var handwavecount = 0;
+
+					switch(checkcommand){
+						//move right
+						case "moveright":
+						heroprex50 = parseInt(heroprex) + 50;
+						console.log("animate: " + Blocklylog[i] + " ; " + heroprex + "," + heroprey + " -> " + heroprex50 + "," + heroprey50);
+							var intervalId = setInterval(function draw(){
+								heroprex++;
+								drawNowBackgraound();
+								context.drawImage(images.herorightImage, heroprex, heroprey);
+								//console.log("heroprex50 = "+heroprex50+","+hero.y+";pre x,y = "+heroprex+","+heroprey);
+								if(heroprex == heroprex50){
+										clearInterval(intervalId);
+								}
+								return draw;
+							}(), hero.speed);
+							break;
+
+						//move left
+						case "moveleft":
+						heroprex50 = parseInt(heroprex) - 50;
+						console.log("animate: " + Blocklylog[i] + " ; " + heroprex + "," + heroprey + " -> " + heroprex50 + "," + heroprey50);
+							var intervalId = setInterval(function draw(){
+								heroprex--;
+								drawNowBackgraound();
+								context.drawImage(images.heroleftImage, heroprex, heroprey);
+								//console.log("heroprex50 = "+heroprex50+","+hero.y+";pre x,y = "+heroprex+","+heroprey);
+								if(heroprex == heroprex50){
+										clearInterval(intervalId);
+								}
+								return draw;
+							}(), hero.speed);
+							break;
+
+						//move up
+						case "moveup":
+						heroprey50 = parseInt(heroprey) - 50;
+						console.log("animate: " + Blocklylog[i] + " ; " + heroprex + "," + heroprey + " -> " + heroprex50 + "," + heroprey50);
+							var intervalId = setInterval(function draw(){
+								heroprey--;
+								drawNowBackgraound();
+								context.drawImage(images.heroupImage, heroprex, heroprey);
+								//console.log("heroprex50 = "+heroprex50+","+hero.y+";pre x,y = "+heroprex+","+heroprey);
+								if(heroprey == heroprey50){
+										clearInterval(intervalId);
+								}
+								return draw;
+							}(), hero.speed);
+							break;
+
+						//move down
+						case "movedown":
+						heroprey50 = parseInt(heroprey) + 50;
+						console.log("animate: " + Blocklylog[i] + " ; " + heroprex + "," + heroprey + " -> " + heroprex50 + "," + heroprey50);
+							var intervalId = setInterval(function draw(){
+								heroprey++;
+								drawNowBackgraound();
+								context.drawImage(images.herodownImage, heroprex, heroprey);
+								//console.log("heroprex50 = "+heroprex50+","+hero.y+";pre x,y = "+heroprex+","+heroprey);
+								if(heroprey == heroprey50){
+										clearInterval(intervalId);
+								}
+								return draw;
+							}(), hero.speed);
+							break;
+
+						//face right
+						case "faceright":
+							drawNowBackgraound();
+							context.drawImage(images.herorightImage, heroprex, heroprey);
+							console.log("animate: " + Blocklylog[i] + " ; " + heroprex + "," + heroprey + "  " + heropredir + " -> " + "right");
+							break;
+
+						//face left
+						case "faceleft":
+							drawNowBackgraound();
+							context.drawImage(images.heroleftImage, heroprex, heroprey);
+							console.log("animate: " + Blocklylog[i] + " ; " + heroprex + "," + heroprey + "  " + heropredir + " -> " + "left");
+							break;
+
+						//face up
+						case "faceup":
+							drawNowBackgraound();
+							context.drawImage(images.heroupImage, heroprex, heroprey);
+							console.log("animate: " + Blocklylog[i] + " ; " + heroprex + "," + heroprey + "  " + heropredir + " -> " + "up");
+							break;
+
+						//face down
+						case "facedown":
+							drawNowBackgraound();
+							context.drawImage(images.herodownImage, heroprex, heroprey);
+							console.log("animate: " + Blocklylog[i] + " ; " + heroprex + "," + heroprey + "  " + heropredir + " -> " + "down");
+							break;
+
+						//destroy success
+						case "destroysuccess":
+							var aftercommand = logstring.substring(commandindex + 1);
+							var commandindex2 = aftercommand.indexOf(",");
+							var getwhichtree = aftercommand.substring(commandindex2 + 1);
+
+							var intervalId = setInterval(function draw(){
+								drawNowBackgraound();
+
+								if(handwavecount % 4 == 0){
+									heroImageNow = eval('images.hero' + heropredir + 'Image');
+									context.drawImage(heroImageNow, heroprex, heroprey);
+								}else if(handwavecount % 4 == 1){
+									heroImageNow = eval('images.hero' + heropredir + 'Image1');
+									context.drawImage(heroImageNow, heroprex, heroprey);
+								}else if(handwavecount % 4 == 2){
+									heroImageNow = eval('images.hero' + heropredir + 'Image2');
+									context.drawImage(heroImageNow, heroprex, heroprey);
+								}else{
+									heroImageNow = eval('images.hero' + heropredir + 'Image3');
+									context.drawImage(heroImageNow, heroprex, heroprey);
+								}
+								handwavecount++;
+
+								if(handwavecount == 17){
+										var treelive = eval("tree" + getwhichtree + ".live");
+										eval("tree" + getwhichtree + ".show = " + treelive);  // show = live
+										drawNowBackgraound();
+										heroImageNow = eval('images.hero' + heropredir + 'Image');
+										context.drawImage(heroImageNow, heroprex, heroprey);
+										clearInterval(intervalId);
+								}
+								return draw;
+							}(), hero.handspeed);
+
+							winpoint++;
+							console.log("animate: " + Blocklylog[i] + " ; " + heroprex + "," + heroprey + "handwave!");
+							break;
+
+						//destroy fail
+						case "destroyfail":
+							var intervalId = setInterval(function draw(){
+								drawNowBackgraound();
+								if(handwavecount % 4 == 0){
+									heroImageNow = eval('images.hero' + heropredir + 'Image');
+									context.drawImage(heroImageNow, heroprex, heroprey);
+								}else if(handwavecount % 4 == 1){
+									heroImageNow = eval('images.hero' + heropredir + 'Image1');
+									context.drawImage(heroImageNow, heroprex, heroprey);
+								}else if(handwavecount % 4 == 2){
+									heroImageNow = eval('images.hero' + heropredir + 'Image2');
+									context.drawImage(heroImageNow, heroprex, heroprey);
+								}else{
+									heroImageNow = eval('images.hero' + heropredir + 'Image3');
+									context.drawImage(heroImageNow, heroprex, heroprey);
+								}
+								handwavecount++;
+
+								if(handwavecount == 17){
+										clearInterval(intervalId);
+								}
+								return draw;
+							}(), hero.handspeed);
+
+							console.log("animate: " + Blocklylog[i] + " ; " + heroprex + "," + heroprey + "handwave!");
+							break;
+
+						//fail forward
+						case "fail_forward":
+							switch(heropredir){
+								//move right
+								case "right":
+								heroprex50 = parseInt(heroprex) + 25;
+								herobackx50 = parseInt(heroprex);
+								console.log("animate: " + Blocklylog[i] + " ; " + heroprex + "," + heroprey + " -> " + heroprex50 + "," + heroprey50);
+									var intervalId = setInterval(function draw(){
+										heroprex++;
+										drawNowBackgraound();
+										context.drawImage(images.herorightImage, heroprex, heroprey);
+										//console.log("heroprex50 = "+heroprex50+","+hero.y+";pre x,y = "+heroprex+","+heroprey);
+										if(heroprex == heroprex50){
+												clearInterval(intervalId);
+												var intervalId2 = setInterval(function draw(){
+													heroprex--;
+													drawNowBackgraound();
+													context.drawImage(images.herorightImage, heroprex, heroprey);
+													//console.log("heroprex50 = "+heroprex50+","+hero.y+";pre x,y = "+heroprex+","+heroprey);
+													if(heroprex == herobackx50){
+															clearInterval(intervalId2);
+													}
+													return draw;
+												}(), hero.speed);
+										}
+										return draw;
+									}(), hero.speed);
+									break;
+
+								//move left
+								case "left":
+								heroprex50 = parseInt(heroprex) - 25;
+								herobackx50 = parseInt(heroprex);
+								console.log("animate: " + Blocklylog[i] + " ; " + heroprex + "," + heroprey + " -> " + heroprex50 + "," + heroprey50);
+									var intervalId = setInterval(function draw(){
+										heroprex--;
+										drawNowBackgraound();
+										context.drawImage(images.heroleftImage, heroprex, heroprey);
+										//console.log("heroprex50 = "+heroprex50+","+hero.y+";pre x,y = "+heroprex+","+heroprey);
+										if(heroprex == heroprex50){
+												clearInterval(intervalId);
+												var intervalId2 = setInterval(function draw(){
+													heroprex++;
+													drawNowBackgraound();
+													context.drawImage(images.heroleftImage, heroprex, heroprey);
+													//console.log("heroprex50 = "+heroprex50+","+hero.y+";pre x,y = "+heroprex+","+heroprey);
+													if(heroprex == herobackx50){
+															clearInterval(intervalId2);
+													}
+													return draw;
+												}(), hero.speed);
+										}
+										return draw;
+									}(), hero.speed);
+									break;
+
+								//move up
+								case "up":
+								heroprey50 = parseInt(heroprey) - 25;
+								herobacky50 = parseInt(heroprey);
+								console.log("animate: " + Blocklylog[i] + " ; " + heroprex + "," + heroprey + " -> " + heroprex50 + "," + heroprey50);
+									var intervalId = setInterval(function draw(){
+										heroprey--;
+										drawNowBackgraound();
+										context.drawImage(images.heroupImage, heroprex, heroprey);
+										//console.log("heroprex50 = "+heroprex50+","+hero.y+";pre x,y = "+heroprex+","+heroprey);
+										if(heroprey == heroprey50){
+												clearInterval(intervalId);
+												var intervalId2 = setInterval(function draw(){
+													heroprey++;
+													drawNowBackgraound();
+													context.drawImage(images.heroupImage, heroprex, heroprey);
+													//console.log("heroprex50 = "+heroprex50+","+hero.y+";pre x,y = "+heroprex+","+heroprey);
+													if(heroprey == herobacky50){
+															clearInterval(intervalId2);
+													}
+													return draw;
+												}(), hero.speed);
+										}
+										return draw;
+									}(), hero.speed);
+									break;
+
+								//move down
+								case "down":
+								heroprey50 = parseInt(heroprey) + 25;
+								herobacky50 = parseInt(heroprey);
+								console.log("animate: " + Blocklylog[i] + " ; " + heroprex + "," + heroprey + " -> " + heroprex50 + "," + heroprey50);
+									var intervalId = setInterval(function draw(){
+										heroprey++;
+										drawNowBackgraound();
+										context.drawImage(images.herodownImage, heroprex, heroprey);
+										//console.log("heroprex50 = "+heroprex50+","+hero.y+";pre x,y = "+heroprex+","+heroprey);
+										if(heroprey == heroprey50){
+												clearInterval(intervalId);
+												var intervalId2 = setInterval(function draw(){
+													heroprey--;
+													drawNowBackgraound();
+													context.drawImage(images.herodownImage, heroprex, heroprey);
+													//console.log("heroprex50 = "+heroprex50+","+hero.y+";pre x,y = "+heroprex+","+heroprey);
+													if(heroprey == herobacky50){
+															clearInterval(intervalId2);
+													}
+													return draw;
+												}(), hero.handspeed);
+										}
+										return draw;
+									}(), hero.speed);
+									break;
+
+							break;
+						}
+					}
+					i++;
+					if(i < loglength){
+						animateLoop();
+					}else if(winpoint == 3 && blocknum <= 9){
+						setTimeout(function(){
+							$( "#dialog" ).dialog( "open" );
+							console.log(hero);
+						}, 2000);
+					}else{
+						failcount = sessionStorage.getItem("2_fail");
+						if(failcount == 0 || failcount == null){
+							setTimeout(function(){
+								failcount = sessionStorage.getItem("2_fail");
+								decidePrompt(failcount, attentionlevel);
+								failcount++;
+								sessionStorage.setItem("2_fail", failcount);
+								console.log(hero + "winpoint: " + winpoint + "fail number: " + failcount);
+							}, 2000);
+						}
+						if(failcount == 1){
+							setTimeout(function(){
+								failcount = sessionStorage.getItem("2_fail");
+								decidePrompt(failcount, attentionlevel);
+								failcount++;
+								sessionStorage.setItem("2_fail", failcount);
+								console.log(hero + "winpoint: " + winpoint + "fail number: " + failcount);
+							}, 2000);
+						}
+						if(failcount >= 2){
+							setTimeout(function(){
+								failcount = sessionStorage.getItem("2_fail");
+								decidePrompt(failcount, attentionlevel);
+								failcount++;
+								sessionStorage.setItem("2_fail", failcount);
+								console.log(hero + "winpoint: " + winpoint + "fail number: " + failcount);
+							}, 2000);
+						}
+					}
+				},1500)
+			}
+			animateLoop();
+		}
+
+		function decidePrompt(fail, attention){
+			if(attention >= 10){
+				if(fail == 0 || fail == null){
+						$( "#dialog1-1" ).dialog( "open" );
+				}
+				if(fail == 1){
+						$( "#dialog2-1" ).dialog( "open" );
+				}
+				if(fail >= 2){
+						$( "#dialog3-1" ).dialog( "open" );
+				}
+			}else{
+				if(fail == 0 || fail == null){
+						$( "#dialog1-2" ).dialog( "open" );
+				}
+				if(fail == 1){
+						$( "#dialog2-2" ).dialog( "open" );
+				}
+				if(fail >= 2){
+						$( "#dialog3-2" ).dialog( "open" );
+				}
+			}
+		}
+
+		Blockly.Blocks['move_forward'] = {
+			init: function() {
+				this.appendDummyInput()
+						.appendField("向前一格");
+				this.setInputsInline(false);
+				this.setPreviousStatement(true, null);
+				this.setNextStatement(true, null);
+				this.setColour(160);
+				this.setTooltip('');
+				this.setHelpUrl('http://www.example.com/');
+			}
+		};
+		Blockly.JavaScript['move_forward'] = function(block) {
+			// TODO: Assemble JavaScript into code variable.
+			//var code = 'moveForward();\n';
+			var code = 'moveForward(\'' + this.id + '\');\n';
+			return code;
+		};
+
+		Blockly.Blocks['move_turnright'] = {
+			init: function() {
+				this.appendDummyInput()
+						.appendField("向右轉");
+				this.setInputsInline(false);
+				this.setPreviousStatement(true, null);
+				this.setNextStatement(true, null);
+				this.setColour(160);
+				this.setTooltip('');
+				this.setHelpUrl('http://www.example.com/');
+			}
+		};
+		Blockly.JavaScript['move_turnright'] = function(block) {
+			// TODO: Assemble JavaScript into code variable.
+
+			var code = 'turnRight(\'' + this.id + '\');\n';
+			return code;
+
+		};
+
+		Blockly.Blocks['move_turnleft'] = {
+			init: function() {
+				this.appendDummyInput()
+						.appendField("向左轉");
+				this.setInputsInline(false);
+				this.setPreviousStatement(true, null);
+				this.setNextStatement(true, null);
+				this.setColour(160);
+				this.setTooltip('');
+				this.setHelpUrl('http://www.example.com/');
+			}
+		};
+		Blockly.JavaScript['move_turnleft'] = function(block) {
+			// TODO: Assemble JavaScript into code variable.
+			var code = 'turnLeft(\'' + this.id + '\');\n';
+			return code;
+		};
+
+		Blockly.Blocks['action_destroy'] = {
+			init: function() {
+				this.appendDummyInput()
+						.appendField("砍伐樹木");
+				this.setInputsInline(false);
+				this.setPreviousStatement(true, null);
+				this.setNextStatement(true, null);
+				this.setColour(160);
+				this.setTooltip('');
+				this.setHelpUrl('http://www.example.com/');
+			}
+		};
+		Blockly.JavaScript['action_destroy'] = function(block) {
+			// TODO: Assemble JavaScript into code variable.
+			var code = 'destroy(\'' + this.id + '\');\n';
+			return code;
+		};
+
+    var workspace = Blockly.inject('blocklyDiv',
+        {media: './media/', toolbox: document.getElementById('toolbox'), trashcan: true});
+
+		var blocknum;
+    function onchange() {
+			blocknum = workspace.getAllBlocks().length;
+      document.getElementById('capacity').innerHTML = blocknum;
+    }
+
+    workspace.addChangeListener(onchange);
+
+		var attentionlevel = 0;
+		function runCode() {
+			if(blocknum != 0){
+				document.getElementById('count').disabled=true;
+				document.getElementById('count').style.backgroundColor = "grey";
+			}
+			failcount = sessionStorage.getItem("2_fail");
+			var blocks = workspace.getAllBlocks();
+			$.getJSON('./stop_record.php?callback=?', "stoptime=" + getDateTimeFormate() + "&mid=" + mid + "&fail=" + failcount + "&blocks=" + blocks,  function(res){
+				attentionlevel = res.total_att;
+			});
+			Blocklylog = [];
+			//Blockly.JavaScript.addReservedWords('code');
+			var code = Blockly.JavaScript.workspaceToCode(workspace);
+			try {
+				eval(code);
+			} catch (e) {
+				alert(e);
+			}
+			animate();
+		}
+  </script>
+
+	<div id="dialog">恭喜過關!</div>
+
+	<div id="dialog1-1">
+		<br/>
+		<div>如何用最少的積木</div><br/>
+		<div>
+			<div style="display:inline-block; margin-right:10px;">前往這</div><div id="drop1-1-1" class="dropdiv" style="display:inline-block;">三棵樹</div><div style="display:inline-block; margin-left:10px;">的面前</div>
+		</div><br/>
+		<div>
+			<div style="display:inline-block; margin-right:10px;">並</div><div id="drop1-1-2" class="dropdiv" style="display:inline-block;">砍伐</div><div style="display:inline-block; margin-left:10px;">它呢?</div>
+		</div>
+		<div id="drag1-1-1" class="dragdiv">三棵樹</div>
+		<div id="drag1-1-2" class="dragdiv">砍伐</div>
+	</div>
+	<div id="dialog2-1">
+		<div>使用</div><br/>
+		<div id="drop2-1-3" class="dropdiv">向左轉</div><br/>
+		<div id="drop2-1-1" class="dropdiv">向前一格</div><br/>
+		<div id="drop2-1-2" class="dropdiv">砍伐樹木</div><br/>
+		<div>來砍伐這三棵樹木</div>
+		<div id="drag2-1-1" class="dragdiv">向前一格</div>
+		<div id="drag2-1-2" class="dragdiv">砍伐樹木</div>
+		<div id="drag2-1-3" class="dragdiv">向左轉</div>
+	</div>
+	<div id="dialog3-1">完整作法如下<br/><br/><img src="./img/normalprompt/Answer_3_2.png" /></div>
+
+	<div id="dialog1-2">
+		<br/>
+		<div>如何用最少的積木</div><br/>
+		<div>
+			<div style="display:inline-block; margin-right:10px;">前往這</div><div id="drop1-2-1" class="dropdiv2" style="display:inline-block;">三棵樹</div><div style="display:inline-block; margin-left:10px;">的面前</div>
+		</div><br/>
+		<div>
+			<div style="display:inline-block; margin-right:10px;">並</div><div id="drop1-2-2" class="dropdiv2" style="display:inline-block;">砍伐</div><div style="display:inline-block; margin-left:10px;">它呢?</div>
+		</div>
+		<div id="drag1-2-1" class="dragdiv2">三棵樹</div>
+		<div id="drag1-2-2" class="dragdiv2">砍伐</div>
+	</div>
+	<div id="dialog2-2">
+		<div>使用</div><br/>
+		<div id="drop2-2-3" class="dropdiv2">向左轉</div><br/>
+		<div id="drop2-2-1" class="dropdiv2">向前一格</div><br/>
+		<div id="drop2-2-2" class="dropdiv2">砍伐樹木</div><br/>
+		<div>來砍伐這三棵樹木</div>
+		<div id="drag2-2-1" class="dragdiv2">向前一格</div>
+		<div id="drag2-2-2" class="dragdiv2">砍伐樹木</div>
+		<div id="drag2-2-3" class="dragdiv2">向左轉</div>
+	</div>
+	<div id="dialog3-2">完整作法如下<br/><br/><img src="./img/powerprompt/level_b2_3.gif" /></div>
+
+	<script>
+	var mid = sessionStorage.getItem("mId");
+	var url = location.href;
+	var res1 = url.split("_");
+	var res2 = res1[1].split("B");
+	var whichlevel = res2[0];
+	var nextlevel = parseInt(whichlevel) + 1;
+  var dropnum = 0;
+	var level_prompt1 = [0, 2, 2, 2, 3, 2, 3, 2, 3, 3, 2, 3, 3, 3];
+	var level_prompt2 = [0, 2, 3, 4, 4, 3, 3, 2, 2, 3, 2, 2, 3, 5];
+
+	function getDateTimeFormate() {
+		now = new Date();
+		year = "" + now.getFullYear();
+		month = "" + (now.getMonth() + 1); if (month.length == 1) { month = "0" + month; }
+		day = "" + now.getDate(); if (day.length == 1) { day = "0" + day; }
+		hour = "" + now.getHours(); if (hour.length == 1) { hour = "0" + hour; }
+		minute = "" + now.getMinutes(); if (minute.length == 1) { minute = "0" + minute; }
+		second = "" + now.getSeconds(); if (second.length == 1) { second = "0" + second; }
+		return year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + second;
+	}
+
+	$("#dialog").dialog({
+			autoOpen: false,
+			height: 200,
+			width: 500,
+			modal: true,
+			resizable: false,
+			closeOnEscape: false,
+			buttons: {
+					'下一關': function() {
+							$(this).dialog('close');
+							$.getJSON('./start_record.php?callback=?', "starttime=" + getDateTimeFormate() + "&group=2&level=" +  nextlevel  + "&mid=" + mid,  function(res){});
+							location.href = "./Level_" +  nextlevel  + "B.html";
+					}
+			},
+			open: function() {
+				var showtime = getDateTimeFormate();
+				$.getJSON('./show_record.php?callback=?', "showtime=" + showtime + "&group=1&level=" +  nextlevel  + "&mid=" + mid,  function(res){});
+				var audio = document.getElementById("winAudio");
+				setTimeout(function () {
+					audio.play();
+				}, 150);
+			}
+	});
+	$("#dialog1-1").dialog({
+			autoOpen: false,
+			height: 500,
+			width: 700,
+			modal: true,
+			resizable: false,
+			closeOnEscape: false,
+			buttons: {
+					'我看完提示了': function() {
+							if(dropnum == level_prompt1[whichlevel]){
+								$(this).html("<div style='line-height:360px; font-size: 44px;'>將剛剛做的套用到解題上吧!</div>");
+								$('.ui-dialog-buttonpane').button().hide();
+								var audio = document.getElementById("correctAudio");
+								audio.play();
+								setTimeout(function(){
+									$.getJSON('./start_record.php?callback=?', "starttime=" + getDateTimeFormate() + "&group=2&level=" +  whichlevel  + "&mid=" + mid,  function(res){});
+									location.reload();
+								}, 3000);
+							}else{
+								$("#dialog1-1").append( "<br/><span style='color:red;  font-size:16px;'>請放入所有方塊</span>" );
+							}
+					}
+			},
+			open: function() {
+				var showtime = getDateTimeFormate();
+				$.getJSON('./show_record.php?callback=?', "showtime=" + showtime + "&group=1&level=" +  nextlevel  + "&mid=" + mid,  function(res){});
+				var audio = document.getElementById("failureAudio");
+				setTimeout(function () {
+					audio.play();
+				}, 150);
+				$(".ui-dialog-buttonpane button:contains('我看完提示了')").button('disable');
+			}
+	});
+	$("#dialog2-1").dialog({
+			autoOpen: false,
+			height: 550,
+			width: 700,
+			modal: true,
+			resizable: false,
+			closeOnEscape: false,
+			buttons: {
+					'我看完提示了': function() {
+							if(dropnum == level_prompt2[whichlevel]){
+								$(this).html("<div style='line-height:360px; font-size: 44px;'>將剛剛做的套用到解題上吧!</div>");
+								$('.ui-dialog-buttonpane').button().hide();
+								var audio = document.getElementById("correctAudio");
+								audio.play();
+								setTimeout(function(){
+									$.getJSON('./start_record.php?callback=?', "starttime=" + getDateTimeFormate() + "&group=2&level=" +  whichlevel  + "&mid=" + mid,  function(res){});
+									location.reload();
+								}, 3000);
+							}else{
+								$("#dialog2-1").append( "<br/><span style='color:red;  font-size:16px;'>請放入所有方塊</span>" );
+							}
+					}
+			},
+			open: function() {
+				var showtime = getDateTimeFormate();
+				$.getJSON('./show_record.php?callback=?', "showtime=" + showtime + "&group=1&level=" +  nextlevel  + "&mid=" + mid,  function(res){});
+				var audio = document.getElementById("failureAudio");
+				setTimeout(function () {
+					audio.play();
+				}, 150);
+				$(".ui-dialog-buttonpane button:contains('我看完提示了')").button('disable');
+			}
+	});
+	$("#dialog3-1").dialog({
+			autoOpen: false,
+			width: 350,
+			modal: true,
+			resizable: false,
+			closeOnEscape: false,
+			buttons: {
+					'我看完提示了': function() {
+							$(this).dialog('close');
+							$.getJSON('./start_record.php?callback=?', "starttime=" + getDateTimeFormate() + "&group=2&level=" +  whichlevel  + "&mid=" + mid,  function(res){});
+							location.reload();
+					}
+			},
+			open: function() {
+				var showtime = getDateTimeFormate();
+				$.getJSON('./show_record.php?callback=?', "showtime=" + showtime + "&group=1&level=" +  nextlevel  + "&mid=" + mid,  function(res){});
+				var audio = document.getElementById("failureAudio");
+				setTimeout(function () {
+					audio.play();
+				}, 150);
+			}
+	});
+
+	$("#dialog1-2").dialog({
+			autoOpen: false,
+			height: 500,
+			width: 700,
+			modal: true,
+			resizable: false,
+			closeOnEscape: false,
+			buttons: {
+					'我看完提示了': function() {
+						if(dropnum == level_prompt1[whichlevel]){
+							$(this).html("<div id='correctdiv' style='line-height:360px; font-size: 40px; color: #F44336'>將剛剛做的套用到解題上吧!</div>");
+							$('.ui-dialog-buttonpane').button().hide();
+							$( "#correctdiv" ).animate({
+								fontSize: "52px",
+							}, 500 );
+							var preaudio = document.getElementById("level_2_1Audio");
+							preaudio.pause();
+							var audio = document.getElementById("correctAudio");
+							audio.play();
+							setTimeout(function(){
+								$.getJSON('./start_record.php?callback=?', "starttime=" + getDateTimeFormate() + "&group=2&level=" +  whichlevel  + "&mid=" + mid,  function(res){});
+								location.reload();
+							}, 3000);
+						}else{
+							$("#dialog1-2").append( "<br/><span style='color:red;  font-size:16px;'>請放入所有方塊</span>" );
+						}
+					}
+			},
+			open: function() {
+				var showtime = getDateTimeFormate();
+				$.getJSON('./show_record.php?callback=?', "showtime=" + showtime + "&group=1&level=" +  nextlevel  + "&mid=" + mid,  function(res){});
+				$(".ui-dialog-buttonpane button:contains('我看完提示了')").button('disable');
+				var audio = document.getElementById("level_2_1Audio");
+				setTimeout(function () {
+					audio.play();
+				}, 150);
+			}
+	});
+	$("#dialog2-2").dialog({
+			autoOpen: false,
+			height: 550,
+			width: 700,
+			modal: true,
+			resizable: false,
+			closeOnEscape: false,
+			buttons: {
+					'我看完提示了': function() {
+							if(dropnum == level_prompt2[whichlevel]){
+								$(this).html("<div id='correctdiv' style='line-height:360px; font-size: 40px; color: #F44336'>將剛剛做的套用到解題上吧!</div>");
+								$('.ui-dialog-buttonpane').button().hide();
+								$( "#correctdiv" ).animate({
+									fontSize: "52px",
+								}, 500 );
+								var preaudio = document.getElementById("level_2_2Audio");
+								preaudio.pause();
+								var audio = document.getElementById("correctAudio");
+								audio.play();
+								setTimeout(function(){
+									$.getJSON('./start_record.php?callback=?', "starttime=" + getDateTimeFormate() + "&group=2&level=" +  whichlevel  + "&mid=" + mid,  function(res){});
+									location.reload();
+								}, 3000);
+							}else{
+								$("#dialog2-2").append( "<br/><span style='color:red;  font-size:16px;'>請放入所有方塊</span>" );
+							}
+					}
+			},
+			open: function() {
+				var showtime = getDateTimeFormate();
+				$.getJSON('./show_record.php?callback=?', "showtime=" + showtime + "&group=1&level=" +  nextlevel  + "&mid=" + mid,  function(res){});
+				$(".ui-dialog-buttonpane button:contains('我看完提示了')").button('disable');
+				var audio = document.getElementById("level_2_2Audio");
+				setTimeout(function () {
+					audio.play();
+				}, 150);
+			}
+	});
+	$("#dialog3-2").dialog({
+			autoOpen: false,
+			width: 350,
+			modal: true,
+			resizable: false,
+			closeOnEscape: false,
+			buttons: {
+					'我看完提示了': function() {
+							$(this).dialog('close');
+							$.getJSON('./start_record.php?callback=?', "starttime=" + getDateTimeFormate() + "&group=2&level=" +  whichlevel  + "&mid=" + mid,  function(res){});
+							location.reload();
+					}
+			},
+			open: function() {
+				var showtime = getDateTimeFormate();
+				$.getJSON('./show_record.php?callback=?', "showtime=" + showtime + "&group=1&level=" +  nextlevel  + "&mid=" + mid,  function(res){});
+				var audio = document.getElementById("level_2_3Audio");
+				setTimeout(function () {
+					audio.play();
+				}, 150);
+			}
+	});
+
+	$(".ui-dialog-titlebar").hide();
+	$(".ui-dialog-content").css({"font-size": +24+"px"});
+	$.ui.dialog.prototype._focusTabbable = $.noop;
+	$(".ui-dialog-content #drag2-1-1").css({"left": +185+"px"});
+	$(".ui-dialog-content #drag2-1-2").css({"left": +310+"px"});
+	$(".ui-dialog-content #drag2-1-3").css({"left": +435+"px"});
+	$(".ui-dialog-content #drag2-2-1").css({"left": +185+"px"});
+	$(".ui-dialog-content #drag2-2-2").css({"left": +310+"px"});
+	$(".ui-dialog-content #drag2-2-3").css({"left": +435+"px"});
+
+  $(function() {
+
+    $( "#drag1-1-1" ).draggable({ containment: "parent" });
+    $( "#drag1-1-2" ).draggable({ containment: "parent" });
+		$( "#drag2-1-1" ).draggable({ containment: "parent" });
+    $( "#drag2-1-2" ).draggable({ containment: "parent" });
+		$( "#drag2-1-3" ).draggable({ containment: "parent" });
+		$( "#drag1-2-1" ).draggable({ containment: "parent" });
+		$( "#drag1-2-2" ).draggable({ containment: "parent" });
+		$( "#drag2-2-1" ).draggable({ containment: "parent" });
+		$( "#drag2-2-2" ).draggable({ containment: "parent" });
+		$( "#drag2-2-3" ).draggable({ containment: "parent" });
+
+    $( "#drop1-1-1" ).droppable({
+      accept: "#drag1-1-1",
+      tolerance: "pointer",
+      drop: function( event, ui ) {
+				var audio = document.getElementById("clickAudio");
+				audio.play();
+        $( "#drag1-1-1" ).draggable( "disable" );
+        $( "#drag1-1-1" ).position({
+          my: "center",
+          at: "center",
+          of: "#drop1-1-1"
+        });
+        $( this ).addClass( "ui-state-highlight" ).html( "" );
+        dropnum++;
+				if(dropnum == level_prompt1[whichlevel]){
+					$(".ui-dialog-buttonpane button:contains('我看完提示了')").button("enable");
+				}
+      }
+    });
+    $( "#drop1-1-2" ).droppable({
+      accept: "#drag1-1-2",
+      tolerance: "pointer",
+      drop: function( event, ui ) {
+				var audio = document.getElementById("clickAudio");
+				audio.play();
+        $( "#drag1-1-2" ).draggable( "disable" );
+        $( "#drag1-1-2" ).position({
+          my: "center",
+          at: "center",
+          of: "#drop1-1-2"
+        });
+        $( this ).addClass( "ui-state-highlight" ).html( "" );
+        dropnum++;
+				if(dropnum == level_prompt1[whichlevel]){
+					$(".ui-dialog-buttonpane button:contains('我看完提示了')").button("enable");
+				}
+      }
+    });
+
+		$( "#drop2-1-1" ).droppable({
+      accept: "#drag2-1-1",
+      tolerance: "pointer",
+      drop: function( event, ui ) {
+				var audio = document.getElementById("clickAudio");
+				audio.play();
+        $( "#drag2-1-1" ).draggable( "disable" );
+        $( "#drag2-1-1" ).position({
+          my: "center",
+          at: "center",
+          of: "#drop2-1-1"
+        });
+        $( this ).addClass( "ui-state-highlight" ).html( "" );
+        dropnum++;
+				if(dropnum == level_prompt2[whichlevel]){
+					$(".ui-dialog-buttonpane button:contains('我看完提示了')").button("enable");
+				}
+      }
+    });
+    $( "#drop2-1-2" ).droppable({
+      accept: "#drag2-1-2",
+      tolerance: "pointer",
+      drop: function( event, ui ) {
+				var audio = document.getElementById("clickAudio");
+				audio.play();
+        $( "#drag2-1-2" ).draggable( "disable" );
+        $( "#drag2-1-2" ).position({
+          my: "center",
+          at: "center",
+          of: "#drop2-1-2"
+        });
+        $( this ).addClass( "ui-state-highlight" ).html( "" );
+        dropnum++;
+				if(dropnum == level_prompt2[whichlevel]){
+					$(".ui-dialog-buttonpane button:contains('我看完提示了')").button("enable");
+				}
+      }
+    });
+    $( "#drop2-1-3" ).droppable({
+      accept: "#drag2-1-3",
+      tolerance: "pointer",
+      drop: function( event, ui ) {
+				var audio = document.getElementById("clickAudio");
+				audio.play();
+        $( "#drag2-1-3" ).draggable( "disable" );
+        $( "#drag2-1-3" ).position({
+          my: "center",
+          at: "center",
+          of: "#drop2-1-3"
+        });
+        $( this ).addClass( "ui-state-highlight" ).html( "" );
+        dropnum++;
+				if(dropnum == level_prompt2[whichlevel]){
+					$(".ui-dialog-buttonpane button:contains('我看完提示了')").button("enable");
+				}
+      }
+    });
+
+		$( "#drop1-2-1" ).droppable({
+			accept: "#drag1-2-1",
+			tolerance: "pointer",
+			drop: function( event, ui ) {
+				var audio = document.getElementById("clickAudio");
+				audio.play();
+				$( "#drag1-2-1" ).draggable( "disable" );
+				$( "#drag1-2-1" ).position({
+					my: "center",
+					at: "center",
+					of: "#drop1-2-1"
+				});
+				$( this ).addClass( "ui-state-highlight" ).html( "" );
+				dropnum++;
+				$( "#drag1-2-1" ).animate({
+					width: "120px",
+					height: "50px",
+					left: "-=10px",
+					top: "-=10px",
+					fontSize: "26px",
+					borderWidth: "5px"
+				}, 1000 );
+				if(dropnum == level_prompt1[whichlevel]){
+					$(".ui-dialog-buttonpane button:contains('我看完提示了')").button("enable");
+				}
+			}
+		});
+		$( "#drop1-2-2" ).droppable({
+			accept: "#drag1-2-2",
+			tolerance: "pointer",
+			drop: function( event, ui ) {
+				var audio = document.getElementById("clickAudio");
+				audio.play();
+				$( "#drag1-2-2" ).draggable( "disable" );
+				$( "#drag1-2-2" ).position({
+					my: "center",
+					at: "center",
+					of: "#drop1-2-2"
+				});
+				$( this ).addClass( "ui-state-highlight" ).html( "" );
+				dropnum++;
+				$( "#drag1-2-2" ).animate({
+					width: "120px",
+					height: "50px",
+					left: "-=10px",
+					top: "-=10px",
+					fontSize: "26px",
+					borderWidth: "5px"
+				}, 1000 );
+				if(dropnum == level_prompt1[whichlevel]){
+					$(".ui-dialog-buttonpane button:contains('我看完提示了')").button("enable");
+				}
+			}
+		});
+
+		$( "#drop2-2-1" ).droppable({
+			accept: "#drag2-2-1",
+			tolerance: "pointer",
+			drop: function( event, ui ) {
+				var audio = document.getElementById("clickAudio");
+				audio.play();
+				$( "#drag2-2-1" ).draggable( "disable" );
+				$( "#drag2-2-1" ).position({
+					my: "center",
+					at: "center",
+					of: "#drop2-2-1"
+				});
+				$( this ).addClass( "ui-state-highlight" ).html( "" );
+				dropnum++;
+				$( "#drag2-2-1" ).animate({
+					width: "120px",
+					height: "50px",
+					left: "-=10px",
+					top: "-=10px",
+					fontSize: "26px",
+					borderWidth: "5px"
+				}, 1000 );
+				if(dropnum == level_prompt2[whichlevel]){
+					$(".ui-dialog-buttonpane button:contains('我看完提示了')").button("enable");
+				}
+			}
+		});
+		$( "#drop2-2-2" ).droppable({
+			accept: "#drag2-2-2",
+			tolerance: "pointer",
+			drop: function( event, ui ) {
+				var audio = document.getElementById("clickAudio");
+				audio.play();
+				$( "#drag2-2-2" ).draggable( "disable" );
+				$( "#drag2-2-2" ).position({
+					my: "center",
+					at: "center",
+					of: "#drop2-2-2"
+				});
+				$( this ).addClass( "ui-state-highlight" ).html( "" );
+				dropnum++;
+				$( "#drag2-2-2" ).animate({
+					width: "120px",
+					height: "50px",
+					left: "-=10px",
+					top: "-=10px",
+					fontSize: "26px",
+					borderWidth: "5px"
+				}, 1000 );
+				if(dropnum == level_prompt2[whichlevel]){
+					$(".ui-dialog-buttonpane button:contains('我看完提示了')").button("enable");
+				}
+			}
+		});
+		$( "#drop2-2-3" ).droppable({
+			accept: "#drag2-2-3",
+			tolerance: "pointer",
+			drop: function( event, ui ) {
+				var audio = document.getElementById("clickAudio");
+				audio.play();
+				$( "#drag2-2-3" ).draggable( "disable" );
+				$( "#drag2-2-3" ).position({
+					my: "center",
+					at: "center",
+					of: "#drop2-2-3"
+				});
+				$( this ).addClass( "ui-state-highlight" ).html( "" );
+				dropnum++;
+				$( "#drag2-2-3" ).animate({
+					width: "120px",
+					height: "50px",
+					left: "-=10px",
+					top: "-=10px",
+					fontSize: "26px",
+					borderWidth: "5px"
+				}, 1000 );
+				if(dropnum == level_prompt2[whichlevel]){
+					$(".ui-dialog-buttonpane button:contains('我看完提示了')").button("enable");
+				}
+			}
+		});
+
+  });
+
+	function blinker() {
+	    $('.dropdiv2').fadeOut(1000);
+	    $('.dropdiv2').fadeIn(1000);
+	}
+
+	setInterval(blinker, 2000);
+
+  </script>
+</html>
