@@ -853,9 +853,12 @@ Released   : 20131202
 	var mid = sessionStorage.getItem("mId");
 	var url = location.href;
 	var res1 = url.split("_");
-	var res2 = res1[1].split("B");
-	var whichlevel = res2[0];
-	var nextlevel = parseInt(whichlevel) + 1;
+	//var res2 = res1[1].split("B");
+	if(res1 == "index"){
+		res1 = 1;
+	}
+	var whichlevel = res1;
+	var nextlevel = whichlevel + 1;
   var dropnum = 0;
 	var level_prompt1 = [0, 2, 3, 2, 3, 2, 3, 2, 3, 3, 2, 3, 3, 3];
 	var level_prompt2 = [0, 2, 3, 4, 4, 3, 3, 2, 2, 3, 2, 2, 3, 5];
@@ -882,7 +885,7 @@ Released   : 20131202
 					'下一關': function() {
 							$(this).dialog('close');
 							$.getJSON('./start_record.php?callback=?', "starttime=" + getDateTimeFormate() + "&group=2&level=" +  nextlevel  + "&mid=" + mid,  function(res){});
-							location.href = "./Level_" +  nextlevel  + "B.html";
+							location.href = "./2.html";
 					}
 			},
 			open: function() {
