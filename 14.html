@@ -4,7 +4,7 @@ Design by TEMPLATED
 http://templated.co
 Released for free under the Creative Commons Attribution License
 
-Name       : LawnLike 
+Name       : LawnLike
 Description: A two-column, fixed-width design with dark color scheme.
 Version    : 1.0
 Released   : 20131202
@@ -22,11 +22,10 @@ Released   : 20131202
 <script src="./javascript_compressed.js"></script>
 <script src="./msg/js/zh-hant.js"></script>
 <link rel="stylesheet" href="./css/level_view.css">
-<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
-<script src="http://code.jquery.com/jquery-1.10.2.js"></script>
-<script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<link rel="stylesheet" href="./jquery-ui-1.11.4/jquery-ui.css">
+<script src="./jquery-ui-1.11.4/external/jquery/jquery.js"></script>
+<script src="./jquery-ui-1.11.4/jquery-ui.js"></script>
 <!-- level -->
-<link href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700,900" rel="stylesheet" />
 <link href="default.css" rel="stylesheet" type="text/css" media="all" />
 <link href="fonts.css" rel="stylesheet" type="text/css" media="all" />
 
@@ -54,7 +53,7 @@ Released   : 20131202
 </div>
 <div id="wrapper">
 	<div id="featured-wrapper">
-		<div id="featured" class="extra2 margin-btm container">	
+		<div id="featured" class="extra2 margin-btm container">
 		<table style="height: 100%; width: 100%;">
 			<tr>
 				<td style="padding-top: 7px; padding-left: 0px; padding-right: 50px">
@@ -65,10 +64,10 @@ Released   : 20131202
 				</td>
 			</tr>
 		</table>
-			<!-- <div class="ebox1"> 
+			<!-- <div class="ebox1">
 				<p><canvas id="canvas" width="400" height="400"></canvas></p>
 			</div>
-			<div class="ebox2"> 
+			<div class="ebox2">
 				<p><div id="blocklyDiv"></div></p>
 			</div> -->
 		</div>
@@ -104,7 +103,7 @@ Released   : 20131202
 		};
 		var winpoint = 0;
 		var failcount = 0;
-		
+
 		var images = {};
 		function loadImages(sources, callback) {
 			var loadedImages = 0;
@@ -123,7 +122,7 @@ Released   : 20131202
 				images[src].src = sources[src];
 			}
 		}
-		
+
 		var sources = {
 			bgImage: './img/grass_line.png',
 			herorightImage: './img/YuanRight.png',
@@ -151,7 +150,7 @@ Released   : 20131202
 		} else {
 				alert('You need a browser which supports the HTML5 canvas!');
 		}
-		
+
 		var heroImageNow;
 		loadImages(sources, function(images) {
 			drawNowBackgraound();
@@ -164,42 +163,42 @@ Released   : 20131202
 					break;
 				case "left":
 					context.drawImage(images.heroLeftImage, hero.x, hero.y);
-					break;		
+					break;
 				case "up":
 					context.drawImage(images.heroUpImage, hero.x, hero.y);
 					break;
 				case "down":
 					context.drawImage(images.heroDownImage, hero.x, hero.y);
-					break;				
-			}	
+					break;
+			}
 			*/
 		});
-		
+
 		function drawNowBackgraound(){
-			context.drawImage(images.bgImage, 0, 0, canvas.width, canvas.height);	
+			context.drawImage(images.bgImage, 0, 0, canvas.width, canvas.height);
 			if(tree.live){
 				context.drawImage(images.targetImage, 250, 200, 50, 50);
 			}
 		}
-		
+
 		// Reset the game
 		var reset = function () {
 			hero.x = 100;
 			hero.y = canvas.height / 2;
 			hero.pre = [];
 			hero.direction = "right";
-			
+
 			drawNowBackgraound();
 			heroImageNow = eval('images.hero' + hero.direction + 'Image');
 			context.drawImage(heroImageNow, hero.x, hero.y);
-			
-			Blockly.mainWorkspace.clear() 
+
+			Blockly.mainWorkspace.clear()
 		};
 
 		function moveForward(id) {
 			move(id);
 		}
-		
+
 		function turnLeft(id){
 			turn(0, id);
 		}
@@ -207,7 +206,7 @@ Released   : 20131202
 		function turnRight(id){
 			turn(1, id);
 		}
-		
+
 		function move(id){
 			if (!isPath()) {
 				Blocklylog.push(['fail_forward', id]);
@@ -241,7 +240,7 @@ Released   : 20131202
 			Blocklylog.push([command, id]);
 			console.log("Blocklylog push = " + Blocklylog);//TEST
 		}
-		
+
 		function turn(direction, id){
 			var turncommand;
 			if (direction) {
@@ -256,7 +255,7 @@ Released   : 20131202
 						hero.pre.push([hero.x, hero.y, hero.direction]);
 						hero.direction = "up";
 						turncommand = "faceup";
-						break;		
+						break;
 					case "up":
 						hero.pre.push([hero.x, hero.y, hero.direction]);
 						hero.direction = "right";
@@ -266,7 +265,7 @@ Released   : 20131202
 						hero.pre.push([hero.x, hero.y, hero.direction]);
 						hero.direction = "left";
 						turncommand = "faceleft";
-						break;				
+						break;
 				}
 				Blocklylog.push([turncommand, id]);
 			} else {
@@ -281,7 +280,7 @@ Released   : 20131202
 						hero.pre.push([hero.x, hero.y, hero.direction]);
 						hero.direction = "down";
 						turncommand = "facedown";
-						break;		
+						break;
 					case "up":
 						hero.pre.push([hero.x, hero.y, hero.direction]);
 						hero.direction = "left";
@@ -291,13 +290,13 @@ Released   : 20131202
 						hero.pre.push([hero.x, hero.y, hero.direction]);
 						hero.direction = "right";
 						turncommand = "faceright";
-						break;	
+						break;
 				}
 				Blocklylog.push([turncommand, id]);
 			}
 			console.log("Blocklylog push = " + Blocklylog);  //TEST
 		}
-		
+
 		function destroy(id){
 			var destroystatus = "destroyfail";
 			switch (hero.direction) {
@@ -330,7 +329,7 @@ Released   : 20131202
 			Blocklylog.push([destroystatus, id]);
 			console.log("Blocklylog push = " + Blocklylog);  //TEST
 		}
-		
+
 		function isPath(){
 			var square;
 			switch (hero.direction) {
@@ -374,14 +373,14 @@ Released   : 20131202
 					var heroprex50 = parseInt(heroprex);
 					var heroprey50 = parseInt(heroprey);
 					var handwavecount = 0;
-						
+
 					switch(checkcommand){
 						//move right
 						case "moveright":
 						heroprex50 = parseInt(heroprex) + 50;
 						console.log("animate: " + Blocklylog[i] + " ; " + heroprex + "," + heroprey + " -> " + heroprex50 + "," + heroprey50);
 							var intervalId = setInterval(function draw(){
-								heroprex++;							
+								heroprex++;
 								drawNowBackgraound();
 								context.drawImage(images.herorightImage, heroprex, heroprey);
 								//console.log("heroprex50 = "+heroprex50+","+hero.y+";pre x,y = "+heroprex+","+heroprey);
@@ -391,13 +390,13 @@ Released   : 20131202
 								return draw;
 							}(), hero.speed);
 							break;
-							
+
 						//move left
 						case "moveleft":
 						heroprex50 = parseInt(heroprex) - 50;
 						console.log("animate: " + Blocklylog[i] + " ; " + heroprex + "," + heroprey + " -> " + heroprex50 + "," + heroprey50);
 							var intervalId = setInterval(function draw(){
-								heroprex--;							
+								heroprex--;
 								drawNowBackgraound();
 								context.drawImage(images.heroleftImage, heroprex, heroprey);
 								//console.log("heroprex50 = "+heroprex50+","+hero.y+";pre x,y = "+heroprex+","+heroprey);
@@ -406,14 +405,14 @@ Released   : 20131202
 								}
 								return draw;
 							}(), hero.speed);
-							break;	
-							
+							break;
+
 						//move up
 						case "moveup":
 						heroprey50 = parseInt(heroprey) - 50;
 						console.log("animate: " + Blocklylog[i] + " ; " + heroprex + "," + heroprey + " -> " + heroprex50 + "," + heroprey50);
 							var intervalId = setInterval(function draw(){
-								heroprey--;							
+								heroprey--;
 								drawNowBackgraound();
 								context.drawImage(images.heroupImage, heroprex, heroprey);
 								//console.log("heroprex50 = "+heroprex50+","+hero.y+";pre x,y = "+heroprex+","+heroprey);
@@ -423,13 +422,13 @@ Released   : 20131202
 								return draw;
 							}(), hero.speed);
 							break;
-							
+
 						//move down
 						case "movedown":
 						heroprey50 = parseInt(heroprey) + 50;
 						console.log("animate: " + Blocklylog[i] + " ; " + heroprex + "," + heroprey + " -> " + heroprex50 + "," + heroprey50);
 							var intervalId = setInterval(function draw(){
-								heroprey++;							
+								heroprey++;
 								drawNowBackgraound();
 								context.drawImage(images.herodownImage, heroprex, heroprey);
 								//console.log("heroprex50 = "+heroprex50+","+hero.y+";pre x,y = "+heroprex+","+heroprey);
@@ -439,35 +438,35 @@ Released   : 20131202
 								return draw;
 							}(), hero.speed);
 							break;
-							
+
 						//face right
 						case "faceright":
 							drawNowBackgraound();
 							context.drawImage(images.herorightImage, heroprex, heroprey);
 							console.log("animate: " + Blocklylog[i] + " ; " + heroprex + "," + heroprey + "  " + heropredir + " -> " + "right");
 							break;
-						
+
 						//face left
 						case "faceleft":
 							drawNowBackgraound();
 							context.drawImage(images.heroleftImage, heroprex, heroprey);
 							console.log("animate: " + Blocklylog[i] + " ; " + heroprex + "," + heroprey + "  " + heropredir + " -> " + "left");
 							break;
-							
+
 						//face up
 						case "faceup":
 							drawNowBackgraound();
 							context.drawImage(images.heroupImage, heroprex, heroprey);
 							console.log("animate: " + Blocklylog[i] + " ; " + heroprex + "," + heroprey + "  " + heropredir + " -> " + "up");
 							break;
-							
+
 						//face down
 						case "facedown":
 							drawNowBackgraound();
 							context.drawImage(images.herodownImage, heroprex, heroprey);
 							console.log("animate: " + Blocklylog[i] + " ; " + heroprex + "," + heroprey + "  " + heropredir + " -> " + "down");
 							break;
-						
+
 						//destroy success
 						case "destroysuccess":
 							tree.live = true;
@@ -487,8 +486,8 @@ Released   : 20131202
 									heroImageNow = eval('images.hero' + heropredir + 'Image3');
 									context.drawImage(heroImageNow, heroprex, heroprey);
 								}
-								handwavecount++;							
-								
+								handwavecount++;
+
 								if(handwavecount == 17){
 										tree.live = false;
 										drawNowBackgraound();
@@ -502,7 +501,7 @@ Released   : 20131202
 							winpoint++;
 							console.log("animate: " + Blocklylog[i] + " ; " + heroprex + "," + heroprey + "handwave!");
 							break;
-						
+
 						//destroy fail
 						case "destroyfail":
 							var intervalId = setInterval(function draw(){
@@ -520,8 +519,8 @@ Released   : 20131202
 									heroImageNow = eval('images.hero' + heropredir + 'Image3');
 									context.drawImage(heroImageNow, heroprex, heroprey);
 								}
-								handwavecount++;							
-								
+								handwavecount++;
+
 								if(handwavecount == 17){
 										clearInterval(intervalId);
 								}
@@ -530,7 +529,7 @@ Released   : 20131202
 
 							console.log("animate: " + Blocklylog[i] + " ; " + heroprex + "," + heroprey + "handwave!");
 							break;
-							
+
 						//fail forward
 						case "fail_forward":
 							switch(heropredir){
@@ -540,14 +539,14 @@ Released   : 20131202
 								herobackx50 = parseInt(heroprex);
 								console.log("animate: " + Blocklylog[i] + " ; " + heroprex + "," + heroprey + " -> " + heroprex50 + "," + heroprey50);
 									var intervalId = setInterval(function draw(){
-										heroprex++;							
+										heroprex++;
 										drawNowBackgraound();
 										context.drawImage(images.herorightImage, heroprex, heroprey);
 										//console.log("heroprex50 = "+heroprex50+","+hero.y+";pre x,y = "+heroprex+","+heroprey);
 										if(heroprex == heroprex50){
 												clearInterval(intervalId);
 												var intervalId2 = setInterval(function draw(){
-													heroprex--;							
+													heroprex--;
 													drawNowBackgraound();
 													context.drawImage(images.herorightImage, heroprex, heroprey);
 													//console.log("heroprex50 = "+heroprex50+","+hero.y+";pre x,y = "+heroprex+","+heroprey);
@@ -560,21 +559,21 @@ Released   : 20131202
 										return draw;
 									}(), hero.speed);
 									break;
-									
+
 								//move left
 								case "left":
 								heroprex50 = parseInt(heroprex) + 25;
 								herobackx50 = parseInt(heroprex);
 								console.log("animate: " + Blocklylog[i] + " ; " + heroprex + "," + heroprey + " -> " + heroprex50 + "," + heroprey50);
 									var intervalId = setInterval(function draw(){
-										heroprex--;							
+										heroprex--;
 										drawNowBackgraound();
 										context.drawImage(images.heroleftImage, heroprex, heroprey);
 										//console.log("heroprex50 = "+heroprex50+","+hero.y+";pre x,y = "+heroprex+","+heroprey);
 										if(heroprex == heroprex50){
 												clearInterval(intervalId);
 												var intervalId2 = setInterval(function draw(){
-													heroprex++;							
+													heroprex++;
 													drawNowBackgraound();
 													context.drawImage(images.heroleftImage, heroprex, heroprey);
 													//console.log("heroprex50 = "+heroprex50+","+hero.y+";pre x,y = "+heroprex+","+heroprey);
@@ -586,22 +585,22 @@ Released   : 20131202
 										}
 										return draw;
 									}(), hero.speed);
-									break;	
-									
+									break;
+
 								//move up
 								case "up":
 								heroprey50 = parseInt(heroprey) - 25;
 								herobacky50 = parseInt(heroprey);
 								console.log("animate: " + Blocklylog[i] + " ; " + heroprex + "," + heroprey + " -> " + heroprex50 + "," + heroprey50);
 									var intervalId = setInterval(function draw(){
-										heroprey--;							
+										heroprey--;
 										drawNowBackgraound();
 										context.drawImage(images.heroupImage, heroprex, heroprey);
 										//console.log("heroprex50 = "+heroprex50+","+hero.y+";pre x,y = "+heroprex+","+heroprey);
 										if(heroprey == heroprey50){
 												clearInterval(intervalId);
 												var intervalId2 = setInterval(function draw(){
-													heroprey++;							
+													heroprey++;
 													drawNowBackgraound();
 													context.drawImage(images.heroupImage, heroprex, heroprey);
 													//console.log("heroprex50 = "+heroprex50+","+hero.y+";pre x,y = "+heroprex+","+heroprey);
@@ -614,21 +613,21 @@ Released   : 20131202
 										return draw;
 									}(), hero.speed);
 									break;
-									
+
 								//move down
 								case "down":
 								heroprey50 = parseInt(heroprey) + 25;
 								herobacky50 = parseInt(heroprey);
 								console.log("animate: " + Blocklylog[i] + " ; " + heroprex + "," + heroprey + " -> " + heroprex50 + "," + heroprey50);
 									var intervalId = setInterval(function draw(){
-										heroprey++;							
+										heroprey++;
 										drawNowBackgraound();
 										context.drawImage(images.herodownImage, heroprex, heroprey);
 										//console.log("heroprex50 = "+heroprex50+","+hero.y+";pre x,y = "+heroprex+","+heroprey);
 										if(heroprey == heroprey50){
 												clearInterval(intervalId);
 												var intervalId2 = setInterval(function draw(){
-													heroprey--;							
+													heroprey--;
 													drawNowBackgraound();
 													context.drawImage(images.herodownImage, heroprex, heroprey);
 													//console.log("heroprex50 = "+heroprex50+","+hero.y+";pre x,y = "+heroprex+","+heroprey);
@@ -641,7 +640,7 @@ Released   : 20131202
 										return draw;
 									}(), hero.speed);
 									break;
-							
+
 							break;
 						}
 					}
@@ -685,7 +684,7 @@ Released   : 20131202
 			}
 			animateLoop();
 		}
-				
+
 		Blockly.Blocks['move_forward'] = {
 			init: function() {
 				this.appendDummyInput()
@@ -697,14 +696,14 @@ Released   : 20131202
 				this.setTooltip('');
 				this.setHelpUrl('http://www.example.com/');
 			}
-		};	
+		};
 		Blockly.JavaScript['move_forward'] = function(block) {
 			// TODO: Assemble JavaScript into code variable.
 			//var code = 'moveForward();\n';
 			var code = 'moveForward(\'' + this.id + '\');\n';
 			return code;
 		};
-				
+
 		Blockly.Blocks['move_turnright'] = {
 			init: function() {
 				this.appendDummyInput()
@@ -716,15 +715,15 @@ Released   : 20131202
 				this.setTooltip('');
 				this.setHelpUrl('http://www.example.com/');
 			}
-		};	
+		};
 		Blockly.JavaScript['move_turnright'] = function(block) {
 			// TODO: Assemble JavaScript into code variable.
-			
+
 			var code = 'turnRight(\'' + this.id + '\');\n';
 			return code;
-			
+
 		};
-				
+
 		Blockly.Blocks['move_turnleft'] = {
 			init: function() {
 				this.appendDummyInput()
@@ -736,13 +735,13 @@ Released   : 20131202
 				this.setTooltip('');
 				this.setHelpUrl('http://www.example.com/');
 			}
-		};	
+		};
 		Blockly.JavaScript['move_turnleft'] = function(block) {
 			// TODO: Assemble JavaScript into code variable.
 			var code = 'turnLeft(\'' + this.id + '\');\n';
 			return code;
 		};
-		
+
 		Blockly.Blocks['action_destroy'] = {
 			init: function() {
 				this.appendDummyInput()
@@ -754,7 +753,7 @@ Released   : 20131202
 				this.setTooltip('');
 				this.setHelpUrl('http://www.example.com/');
 			}
-		};	
+		};
 		Blockly.JavaScript['action_destroy'] = function(block) {
 			// TODO: Assemble JavaScript into code variable.
 			var code = 'destroy(\'' + this.id + '\');\n';
@@ -778,7 +777,7 @@ Released   : 20131202
 			animate();
 			//window.setTimeout(animate, 10);
 		}
-  </script>	
+  </script>
 	<script>
 		function getDateTimeFormate() {
 			now = new Date();
@@ -793,10 +792,10 @@ Released   : 20131202
     //URL
     var url = location.href;
     var temp = url.split("=");
-    sessionStorage.setItem("mId", temp[1]);	
-		
+    sessionStorage.setItem("mId", temp[1]);
+
 		var mid = sessionStorage.getItem("mId");
-		
+
 		$("#dialog0").dialog({
 				//autoOpen: false,
 				width: 890,
@@ -805,7 +804,7 @@ Released   : 20131202
 				closeOnEscape: false,
 				dialogClass: "no-titlebar",
 
-		});	
+		});
 		$("#dialog").dialog({
 				autoOpen: false,
 				height: 200,
@@ -867,7 +866,7 @@ Released   : 20131202
         }
 		});
 		$(".ui-dialog-titlebar").hide();
-		$(".ui-dialog-content").css({"font-size": +24+"px"}); 
+		$(".ui-dialog-content").css({"font-size": +24+"px"});
 
 </script>
 </html>

@@ -22,11 +22,10 @@ Released   : 20131202
 <script src="./javascript_compressed.js"></script>
 <script src="./msg/js/zh-hant.js"></script>
 <link rel="stylesheet" href="./css/level_view.css">
-<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
-<script src="http://code.jquery.com/jquery-1.10.2.js"></script>
-<script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<link rel="stylesheet" href="./jquery-ui-1.11.4/jquery-ui.css">
+<script src="./jquery-ui-1.11.4/external/jquery/jquery.js"></script>
+<script src="./jquery-ui-1.11.4/jquery-ui.js"></script>
 <!-- level -->
-<link href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700,900" rel="stylesheet" />
 <link href="default.css" rel="stylesheet" type="text/css" media="all" />
 <link href="fonts.css" rel="stylesheet" type="text/css" media="all" />
 <script src="./promptdemo.js"></script>
@@ -866,9 +865,7 @@ Released   : 20131202
 	<script>
 	var mid = sessionStorage.getItem("mId");
 	var url = location.href;
-	var res1 = url.split("_");
-	var res2 = res1[1].split("B");
-	var whichlevel = res2[0];
+	var whichlevel = 6;
 	var nextlevel = parseInt(whichlevel) + 1;
   var dropnum = 0;
 	var level_prompt1 = [0, 2, 2, 2, 3, 2, 3, 3, 3, 3, 2, 3, 3, 3];

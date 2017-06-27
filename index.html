@@ -794,9 +794,6 @@ Released   : 20131202
 			}
 			failcount = sessionStorage.getItem("1_fail");
 			var blocks = workspace.getAllBlocks();
-			$.getJSON('./stop_record.php?callback=?', "stoptime=" + getDateTimeFormate() + "&mid=" + mid + "&fail=" + failcount + "&blocks=" + blocks,  function(res){
-				attentionlevel = res.total_att;
-			});
 			Blocklylog = [];
 			var code = Blockly.JavaScript.workspaceToCode(workspace);
 
@@ -852,12 +849,8 @@ Released   : 20131202
 	<script>
 	var mid = sessionStorage.getItem("mId");
 	var url = location.href;
-	var res1 = url.split("_");
 	//var res2 = res1[1].split("B");
-	if(res1 == "index"){
-		res1 = 1;
-	}
-	var whichlevel = res1;
+	var whichlevel = 1;
 	var nextlevel = whichlevel + 1;
   var dropnum = 0;
 	var level_prompt1 = [0, 2, 3, 2, 3, 2, 3, 2, 3, 3, 2, 3, 3, 3];
@@ -884,13 +877,11 @@ Released   : 20131202
 			buttons: {
 					'下一關': function() {
 							$(this).dialog('close');
-							$.getJSON('./start_record.php?callback=?', "starttime=" + getDateTimeFormate() + "&group=2&level=" +  nextlevel  + "&mid=" + mid,  function(res){});
 							location.href = "./2.html";
 					}
 			},
 			open: function() {
 				var showtime = getDateTimeFormate();
-				$.getJSON('./show_record.php?callback=?', "showtime=" + showtime + "&group=1&level=" +  nextlevel  + "&mid=" + mid,  function(res){});
 				var audio = document.getElementById("winAudio");
 				setTimeout(function () {
 					audio.play();
@@ -912,7 +903,6 @@ Released   : 20131202
 								var audio = document.getElementById("correctAudio");
 								audio.play();
 								setTimeout(function(){
-									$.getJSON('./start_record.php?callback=?', "starttime=" + getDateTimeFormate() + "&group=2&level=" +  whichlevel  + "&mid=" + mid,  function(res){});
 									location.reload();
 								}, 3000);
 							}else{
@@ -922,7 +912,6 @@ Released   : 20131202
 			},
 			open: function() {
 				var showtime = getDateTimeFormate();
-				$.getJSON('./show_record.php?callback=?', "showtime=" + showtime + "&group=1&level=" +  nextlevel  + "&mid=" + mid,  function(res){});
 				var audio = document.getElementById("failureAudio");
 				setTimeout(function () {
 					audio.play();
@@ -945,7 +934,6 @@ Released   : 20131202
 								var audio = document.getElementById("correctAudio");
 								audio.play();
 								setTimeout(function(){
-									$.getJSON('./start_record.php?callback=?', "starttime=" + getDateTimeFormate() + "&group=2&level=" +  whichlevel  + "&mid=" + mid,  function(res){});
 									location.reload();
 								}, 3000);
 							}else{
@@ -955,7 +943,6 @@ Released   : 20131202
 			},
 			open: function() {
 				var showtime = getDateTimeFormate();
-				$.getJSON('./show_record.php?callback=?', "showtime=" + showtime + "&group=1&level=" +  nextlevel  + "&mid=" + mid,  function(res){});
 				var audio = document.getElementById("failureAudio");
 				setTimeout(function () {
 					audio.play();
@@ -972,13 +959,11 @@ Released   : 20131202
 			buttons: {
 					'我看完提示了': function() {
 							$(this).dialog('close');
-							$.getJSON('./start_record.php?callback=?', "starttime=" + getDateTimeFormate() + "&group=2&level=" +  whichlevel  + "&mid=" + mid,  function(res){});
 							location.reload();
 					}
 			},
 			open: function() {
 				var showtime = getDateTimeFormate();
-				$.getJSON('./show_record.php?callback=?', "showtime=" + showtime + "&group=1&level=" +  nextlevel  + "&mid=" + mid,  function(res){});
 				var audio = document.getElementById("failureAudio");
 				setTimeout(function () {
 					audio.play();
@@ -1006,8 +991,7 @@ Released   : 20131202
 							var audio = document.getElementById("correctAudio");
 							audio.play();
 							setTimeout(function(){
-								$.getJSON('./start_record.php?callback=?', "starttime=" + getDateTimeFormate() + "&group=2&level=" +  whichlevel  + "&mid=" + mid,  function(res){});
-								location.reload();
+							 	location.reload();
 							}, 3000);
 						}else{
 							$("#dialog1-2").append( "<br/><span style='color:red;  font-size:16px;'>請放入所有方塊</span>" );
@@ -1016,7 +1000,6 @@ Released   : 20131202
 			},
 			open: function() {
 				var showtime = getDateTimeFormate();
-				$.getJSON('./show_record.php?callback=?', "showtime=" + showtime + "&group=1&level=" +  nextlevel  + "&mid=" + mid,  function(res){});
 				$(".ui-dialog-buttonpane button:contains('我看完提示了')").button('disable');
 				var audio = document.getElementById("level_1_1Audio");
 				setTimeout(function () {
@@ -1044,7 +1027,6 @@ Released   : 20131202
 								var audio = document.getElementById("correctAudio");
 								audio.play();
 								setTimeout(function(){
-									$.getJSON('./start_record.php?callback=?', "starttime=" + getDateTimeFormate() + "&group=2&level=" +  whichlevel  + "&mid=" + mid,  function(res){});
 									location.reload();
 								}, 3000);
 							}else{
@@ -1054,7 +1036,6 @@ Released   : 20131202
 			},
 			open: function() {
 				var showtime = getDateTimeFormate();
-				$.getJSON('./show_record.php?callback=?', "showtime=" + showtime + "&group=1&level=" +  nextlevel  + "&mid=" + mid,  function(res){});
 				$(".ui-dialog-buttonpane button:contains('我看完提示了')").button('disable');
 				var audio = document.getElementById("level_1_2Audio");
 				setTimeout(function () {
@@ -1071,13 +1052,11 @@ Released   : 20131202
 			buttons: {
 					'我看完提示了': function() {
 							$(this).dialog('close');
-							$.getJSON('./start_record.php?callback=?', "starttime=" + getDateTimeFormate() + "&group=2&level=" +  whichlevel  + "&mid=" + mid,  function(res){});
 							location.reload();
 					}
 			},
 			open: function() {
 				var showtime = getDateTimeFormate();
-				$.getJSON('./show_record.php?callback=?', "showtime=" + showtime + "&group=1&level=" +  nextlevel  + "&mid=" + mid,  function(res){});
 				var audio = document.getElementById("level_1_3Audio");
 				setTimeout(function () {
 					audio.play();
@@ -1192,6 +1171,7 @@ Released   : 20131202
 				});
 				$( this ).addClass( "ui-state-highlight" ).html( "" );
 				dropnum++;
+				console.log("dropnum = " + dropnum);
 				$( "#drag1-2-1" ).animate({
 					width: "120px",
 					height: "50px",
@@ -1219,6 +1199,7 @@ Released   : 20131202
 				});
 				$( this ).addClass( "ui-state-highlight" ).html( "" );
 				dropnum++;
+				console.log("dropnum = " + dropnum);
 				$( "#drag1-2-2" ).animate({
 					width: "120px",
 					height: "50px",
@@ -1227,6 +1208,8 @@ Released   : 20131202
 					fontSize: "26px",
 					borderWidth: "5px"
 				}, 1000 );
+				console.log("level_prompt1[whichlevel] = " + level_prompt1[whichlevel]);
+				console.log("whichlevel = " + whichlevel);
 				if(dropnum == level_prompt1[whichlevel]){
 					$(".ui-dialog-buttonpane button:contains('我看完提示了')").button("enable");
 				}
